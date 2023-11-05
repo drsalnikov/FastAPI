@@ -1,0 +1,22 @@
+GET http://localhost:8000
+
+###
+
+POST http://localhost:8000/post
+Content-type: application/json; charset=utf-8
+
+{
+    "id": "6",
+    "timestamp": "1"
+}
+
+###
+
+POST http://localhost:8000/dog
+Content-type: application/json; charset=utf-8
+
+{
+    "name": "Garik",
+    "pk": "1", 
+    "kind": "terrier"
+}
