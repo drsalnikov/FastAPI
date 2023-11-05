@@ -102,9 +102,9 @@ async def CreateDog(dog:Dog):
     return page(f"<h1>Dogs</h1> {content}")
 
 
-@app.patch('/dog')
-async def UpdateDog(dog:Dog):
-    dogs_db.update(dog)
+@app.patch('/dog/{dog_id}')
+async def UpdateDog(dog:Dog, dog_id:int):
+    dogs_db[dog_id] = dog
     content = create_list_by_dict(dogs_db)
     return page(f"<h1>Dogs</h1> {content}")
 
