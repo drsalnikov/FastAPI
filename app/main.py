@@ -1,8 +1,9 @@
 from enum import Enum
-from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.responses import HTMLResponse
+from jinja2 import Template
 
 app = FastAPI()
 
@@ -43,10 +44,9 @@ post_db = [
 
 
 def page(content:str):
-    data = ""
-    with open("wwwroot/index.html", 'r') as f: 
-        data = f.read().replace("{data}", content)
-    return HTMLResponse(data)
+    html = open('app/wwwroot/index.html').read()
+    template = Template(html)
+    return template.render(title=u'Dogs Песики', data=content)
 
 
 def create_list_by_dict(list:dict):
@@ -54,7 +54,7 @@ def create_list_by_dict(list:dict):
     for el in list:
         content += f"<li>{el} {list[el]}</li>"
     content += "</ul>"
-    print(content)
+    content += "<a href='/'>Назад</a>"
     return content
 
 
@@ -63,10 +63,11 @@ def create_list(list:list):
     for el in list:
         content += f"<li>{el}</li>"
     content += "</ul>"
+    content += "<a href='/'>Назад</a>"
     return content
 
 
-@app.get('/')
+@app.get('/', response_class=HTMLResponse)
 async def root():
     content = "<h1>Бобро пожаловать!</h1>"
     content += "<ul>"
@@ -78,7 +79,6 @@ async def root():
     return page(content)
 
 
-
 @app.post('/post')
 async def post(ts:Timestamp):
     ids = [item.id for item in post_db]
@@ -88,7 +88,7 @@ async def post(ts:Timestamp):
     return str(post_db)
 
 
-@app.get('/dog')
+@app.get('/dog', response_class=HTMLResponse)
 async def GetDogs():
     content = create_list_by_dict(dogs_db)
     return page(f"<h1>Dogs</h1> {content}")
@@ -109,14 +109,14 @@ async def UpdateDog(dog:Dog, dog_id:int):
     return page(f"<h1>Dogs</h1> {content}")
 
 
-@app.get('/dog/type/{dog_type}')
+@app.get('/dog/type/{dog_type}', response_class=HTMLResponse)
 async def GetDog(dog_type:DogType):
     dogs = [el for el in dogs_db.values() if el.kind == dog_type]
     content = create_list(dogs)
     return page(content)
 
 
-@app.get('/dog/type')
+@app.get('/dog/type', response_class=HTMLResponse)
 async def DogTypes():
     dogs = [el.value for el in DogType]
     content = "<ul>"
@@ -126,7 +126,7 @@ async def DogTypes():
     return page(content)
 
 
-@app.get('/dog/{dog_id}')
+@app.get('/dog/{dog_id}', response_class=HTMLResponse)
 async def GetDog(dog_id:int):
     return page(str(dogs_db.get(dog_id, 0)))
 
